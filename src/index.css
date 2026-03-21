@@ -57,20 +57,24 @@ body {
 /* ── Header ── */
 
 .app-header {
-  padding: 28px 0 20px;
+  padding: 24px 0 20px;
   position: sticky;
   top: 0;
   z-index: 10;
-  background: linear-gradient(to bottom, var(--bg) 60%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(10, 10, 18, 0.6);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+  margin: 0 -16px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .logo {
@@ -133,8 +137,7 @@ body {
   height: 36px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--surface);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
@@ -146,7 +149,7 @@ body {
 .btn-signout:hover {
   color: var(--text);
   border-color: var(--border-hover);
-  background: var(--surface2);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .btn-signout svg {
