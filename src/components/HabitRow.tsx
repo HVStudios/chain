@@ -1,23 +1,43 @@
+import type { Habit, CompletionMap } from '../types'
 import { getStreak, getCompletionRate, getLongestStreak } from '../utils/statsUtils'
 
-export default function HabitRow({ habit, completions, isCompleted, onToggle, onDelete, window: windowDays }) {
+interface Props {
+  habit: Habit
+  completions: CompletionMap
+  isCompleted: (habitId: string) => boolean
+  onToggle: (habitId: string) => void
+  onDelete: (habitId: string) => void
+  window: number
+}
+
+export default function HabitRow({
+  habit,
+  completions,
+  isCompleted,
+  onToggle,
+  onDelete,
+  window: windowDays,
+}: Props) {
   const streak = getStreak(habit.id, completions)
   const rate = getCompletionRate(habit.id, completions, windowDays)
   const longest = getLongestStreak(habit.id, completions)
   const done = isCompleted(habit.id)
 
   return (
-    <div className={`habit-row${done ? ' done' : ''}`} style={{ '--habit-color': habit.color }}>
+    <div
+      className={`habit-row${done ? ' done' : ''}`}
+      style={{ '--habit-color': habit.color } as React.CSSProperties}
+    >
       <button
         className="check-btn"
         onClick={() => onToggle(habit.id)}
         aria-label={done ? 'Mark incomplete' : 'Mark complete'}
       >
-        {done ? (
+        {done && (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
-        ) : null}
+        )}
       </button>
 
       <span className="habit-emoji">{habit.emoji}</span>
@@ -25,7 +45,7 @@ export default function HabitRow({ habit, completions, isCompleted, onToggle, on
       <div className="habit-info">
         <span className="habit-name">{habit.name}</span>
         <div className="habit-meta">
-          <span className="meta-stat" title={`Longest: ${longest}`}>
+          <span className="meta-stat" title={`Longest streak: ${longest}`}>
             🔥 {streak} day{streak !== 1 ? 's' : ''}
           </span>
           <span className="meta-divider" />

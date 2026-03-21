@@ -1,9 +1,12 @@
+import type { Habit, CompletionMap } from '../types'
+import type { HeatmapDay } from '../utils/statsUtils'
 import { getHeatmapDays } from '../utils/statsUtils'
-import { getDayOfWeek as getDOW, formatDate } from '../utils/dateUtils'
+import { getDayOfWeek, formatDate } from '../utils/dateUtils'
 
 const WEEK_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-function intensityClass(done, total) {
+function intensityClass(done: number, total: number): string {
   if (total === 0 || done === 0) return 'h0'
   const pct = done / total
   if (pct <= 0.25) return 'h1'
@@ -12,25 +15,25 @@ function intensityClass(done, total) {
   return 'h4'
 }
 
-export default function Heatmap({ completions, habits }) {
+interface Props {
+  completions: CompletionMap
+  habits: Habit[]
+}
+
+export default function Heatmap({ completions, habits }: Props) {
   const days = getHeatmapDays(completions, habits, 105) // 15 weeks
-  const firstDOW = getDOW(days[0].date)
-  const paddingCells = firstDOW // empty cells before the first day
+  const firstDOW = getDayOfWeek(days[0].date)
+  const paddingCells = firstDOW
 
-  // Build weeks array
-  const cells = [
-    ...Array(paddingCells).fill(null),
-    ...days,
-  ]
+  const cells: (HeatmapDay | null)[] = [...Array(paddingCells).fill(null), ...days]
 
-  const weeks = []
+  const weeks: (HeatmapDay | null)[][] = []
   for (let i = 0; i < cells.length; i += 7) {
     weeks.push(cells.slice(i, i + 7))
   }
 
-  // Month labels: find first day of each month in the days array
-  const monthLabels = []
-  let lastMonth = null
+  const monthLabels: { month: string; weekIndex: number }[] = []
+  let lastMonth: string | null = null
   days.forEach((day, i) => {
     const month = day.date.slice(0, 7)
     if (month !== lastMonth) {
@@ -38,9 +41,6 @@ export default function Heatmap({ completions, habits }) {
       lastMonth = month
     }
   })
-
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
   return (
     <section className="heatmap-section">
@@ -50,12 +50,13 @@ export default function Heatmap({ completions, habits }) {
           {weeks.map((_, wi) => {
             const label = monthLabels.find(m => m.weekIndex === wi)
             if (label) {
-              const [y, m] = label.month.split('-')
-              return <span key={wi} className="month-label">{monthNames[parseInt(m) - 1]}</span>
+              const m = parseInt(label.month.split('-')[1]) - 1
+              return <span key={wi} className="month-label">{MONTH_NAMES[m]}</span>
             }
             return <span key={wi} className="month-label" />
           })}
         </div>
+
         <div className="heatmap-grid">
           <div className="day-labels">
             {WEEK_LABELS.map((d, i) => (
@@ -80,9 +81,10 @@ export default function Heatmap({ completions, habits }) {
             ))}
           </div>
         </div>
+
         <div className="heatmap-legend">
           <span className="legend-label">Less</span>
-          {['h0', 'h1', 'h2', 'h3', 'h4'].map(c => (
+          {(['h0', 'h1', 'h2', 'h3', 'h4'] as const).map(c => (
             <div key={c} className={`heatmap-cell ${c}`} />
           ))}
           <span className="legend-label">More</span>

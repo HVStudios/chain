@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 
 const COLORS = [
   '#6c63ff', '#f97316', '#38bdf8', '#4ade80',
@@ -7,12 +7,17 @@ const COLORS = [
 
 const EMOJIS = ['⚡', '🏃', '📚', '💧', '🧘', '🎯', '💪', '🥗', '😴', '✍️', '🎨', '🎵']
 
-export default function AddHabitModal({ onAdd, onClose }) {
+interface Props {
+  onAdd: (name: string, emoji: string, color: string) => void
+  onClose: () => void
+}
+
+export default function AddHabitModal({ onAdd, onClose }: Props) {
   const [name, setName] = useState('')
   const [emoji, setEmoji] = useState('⚡')
   const [color, setColor] = useState(COLORS[0])
 
-  function handleSubmit(e) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
     onAdd(name.trim(), emoji, color)
