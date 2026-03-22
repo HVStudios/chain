@@ -50,7 +50,13 @@ body {
   flex-direction: column;
   max-width: 680px;
   margin: 0 auto;
-  padding: 0 16px 80px;
+  padding: 0 16px 36px;
+}
+
+.heatmap-outer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px calc(80px + env(safe-area-inset-bottom));
 }
 
 /* ── Header ── */
@@ -64,12 +70,17 @@ body {
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
   border-bottom: 1px solid var(--border);
+  /* Extend behind the iOS status bar when installed as PWA */
+  padding-top: env(safe-area-inset-top);
 }
 
 .header-inner {
   max-width: 680px;
   margin: 0 auto;
   padding: 20px 16px 20px;
+  /* Respect horizontal safe areas (iPhone notch landscape) */
+  padding-left: calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
 }
 
 .header-top {
@@ -694,22 +705,42 @@ body {
   padding-bottom: 8px;
 }
 
+.heatmap-section-header {
+  margin-bottom: 12px;
+}
+
 .heatmap-wrap {
   background: var(--surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 20px 20px 16px;
   box-shadow: var(--shadow-sm);
-  margin-top: 12px;
+}
+
+/* Single scroll container keeps month labels in sync with week columns */
+.heatmap-scroll {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.heatmap-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.heatmap-inner {
+  min-width: max-content;
 }
 
 .heatmap-month-row {
   display: flex;
   gap: 2px;
-  margin-bottom: 6px;
-  padding-left: 32px;
+  margin-bottom: 4px;
+}
+
+.day-label-spacer {
+  flex: 0 0 32px; /* matches day-labels width + gap */
 }
 
 .month-label {
@@ -751,8 +782,6 @@ body {
 .heatmap-weeks {
   display: flex;
   gap: 2px;
-  overflow-x: auto;
-  padding-bottom: 4px;
 }
 
 .heatmap-week {
@@ -785,8 +814,6 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  justify-content: flex-end;
-  margin-top: 12px;
 }
 
 .legend-label {

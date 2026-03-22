@@ -144,10 +144,6 @@ function AppContent({ user, onSignOut }: AppContentProps) {
         {!loading && habits.length > 0 && (
           <StreakBoard habits={habits} completions={completions} />
         )}
-
-        {!loading && habits.length > 0 && (
-          <Heatmap completions={completions} habits={habits} />
-        )}
       </main>
 
       {showModal && (
@@ -157,6 +153,12 @@ function AppContent({ user, onSignOut }: AppContentProps) {
         />
       )}
       </div>
+
+      {!loading && habits.length > 0 && (
+        <div className="heatmap-outer">
+          <Heatmap completions={completions} habits={habits} />
+        </div>
+      )}
     </>
   )
 }
