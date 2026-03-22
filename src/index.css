@@ -713,10 +713,12 @@ body {
 }
 
 .month-label {
-  flex: 0 0 calc(14px * 7 + 2px * 6);
+  flex: 0 0 14px;
   font-size: 11px;
   color: var(--text-muted);
   font-weight: 500;
+  overflow: visible;
+  white-space: nowrap;
 }
 
 .heatmap-grid {

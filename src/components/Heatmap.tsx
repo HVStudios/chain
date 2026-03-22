@@ -3,7 +3,7 @@ import type { HeatmapDay } from '../utils/statsUtils'
 import { getHeatmapDays } from '../utils/statsUtils'
 import { getDayOfWeek, formatDate } from '../utils/dateUtils'
 
-const WEEK_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const WEEK_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 function intensityClass(done: number, total: number): string {
@@ -22,7 +22,8 @@ interface Props {
 
 export default function Heatmap({ completions, habits }: Props) {
   const days = getHeatmapDays(completions, habits, 105) // 15 weeks
-  const firstDOW = getDayOfWeek(days[0].date)
+  // Convert Sunday-based (0=Sun) to Monday-based (0=Mon): (dow + 6) % 7
+  const firstDOW = (getDayOfWeek(days[0].date) + 6) % 7
   const paddingCells = firstDOW
 
   const cells: (HeatmapDay | null)[] = [...Array(paddingCells).fill(null), ...days]
