@@ -35,16 +35,15 @@ export default function Heatmap({ completions, habits }: Props) {
     weeks.push(cells.slice(i, i + 7))
   }
 
-  // One label entry per week column; only populated on the first week of a new month
-  const monthLabels: (string | null)[] = weeks.map((week) => {
-    const firstReal = week.find(c => c !== null)
-    if (!firstReal) return null
-    const month = firstReal.date.slice(0, 7)
-    // Only show label if this is the first week containing this month
-    const isFirst = !weeks.slice(0, weeks.indexOf(week)).some(
-      w => w.find(c => c !== null)?.date.slice(0, 7) === month
-    )
-    return isFirst ? month : null
+  // Label the first week column that contains any day from a new month
+  const monthLabels: (string | null)[] = weeks.map((week, wi) => {
+    for (const cell of week) {
+      if (!cell) continue
+      const month = cell.date.slice(0, 7)
+      const seenBefore = weeks.slice(0, wi).some(w => w.some(c => c?.date.slice(0, 7) === month))
+      if (!seenBefore) return month
+    }
+    return null
   })
 
   return (
