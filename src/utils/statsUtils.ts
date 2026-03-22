@@ -35,6 +35,26 @@ export function getCompletionRate(
   return Math.round((completed / windowDays) * 100)
 }
 
+export interface Milestone {
+  days: number
+  label: string
+  color: string
+}
+
+export const MILESTONES: Milestone[] = [
+  { days: 365, label: '1 year',   color: '#f472b6' },
+  { days: 100, label: '100 days', color: '#60a5fa' },
+  { days: 60,  label: '2 months', color: '#a78bfa' },
+  { days: 30,  label: '1 month',  color: '#f59e0b' },
+  { days: 14,  label: '2 weeks',  color: '#34d399' },
+  { days: 7,   label: '1 week',   color: '#fb923c' },
+  { days: 3,   label: '3 days',   color: '#94a3b8' },
+]
+
+export function getMilestone(streak: number): Milestone | null {
+  return MILESTONES.find(m => streak >= m.days) ?? null
+}
+
 export interface HeatmapDay {
   date: string
   done: number

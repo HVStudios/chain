@@ -1,5 +1,5 @@
 import type { Habit, CompletionMap } from '../types'
-import { getStreak, getCompletionRate, getLongestStreak } from '../utils/statsUtils'
+import { getStreak, getCompletionRate, getLongestStreak, getMilestone } from '../utils/statsUtils'
 
 interface Props {
   habit: Habit
@@ -22,10 +22,12 @@ export default function HabitRow({
   const rate = getCompletionRate(habit.id, completions, windowDays)
   const longest = getLongestStreak(habit.id, completions)
   const done = isCompleted(habit.id)
+  const atRisk = streak > 0 && !done
+  const milestone = getMilestone(streak)
 
   return (
     <div
-      className={`habit-row${done ? ' done' : ''}`}
+      className={`habit-row${done ? ' done' : ''}${atRisk ? ' at-risk' : ''}`}
       style={{ '--habit-color': habit.color } as React.CSSProperties}
     >
       <button
@@ -45,9 +47,24 @@ export default function HabitRow({
       <div className="habit-info">
         <span className="habit-name">{habit.name}</span>
         <div className="habit-meta">
-          <span className="meta-stat" title={`Longest streak: ${longest}`}>
-            🔥 {streak} day{streak !== 1 ? 's' : ''}
+          <span className={`meta-stat streak-stat${atRisk ? ' at-risk' : ''}`}>
+            🔥 {streak}d
+            {atRisk && <span className="streak-risk-dot" title="Streak at risk — complete today!" />}
           </span>
+          {milestone && (
+            <span
+              className="streak-milestone"
+              style={{ '--milestone-color': milestone.color } as React.CSSProperties}
+            >
+              {milestone.label}
+            </span>
+          )}
+          {longest > streak && (
+            <>
+              <span className="meta-divider" />
+              <span className="meta-stat pb-stat">PB {longest}d</span>
+            </>
+          )}
           <span className="meta-divider" />
           <span className="meta-stat">{rate}% last {windowDays}d</span>
         </div>

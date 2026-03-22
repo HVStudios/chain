@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth'
 import { useHabits } from './hooks/useHabits'
 import HabitRow from './components/HabitRow'
 import Heatmap from './components/Heatmap'
+import StreakBoard from './components/StreakBoard'
 import AddHabitModal from './components/AddHabitModal'
 import AuthPage from './components/AuthPage'
 import { formatDate, today } from './utils/dateUtils'
@@ -43,51 +44,54 @@ function AppContent({ user, onSignOut }: AppContentProps) {
   const progress = habits.length > 0 ? (todayDone / habits.length) * 100 : 0
 
   return (
-    <div className="app">
+    <>
       <header className="app-header">
-        <div className="header-top">
-          <div className="logo">
-            <span className="logo-icon">⛓️</span>
-            <span className="logo-text">Chain</span>
+        <div className="header-inner">
+          <div className="header-top">
+            <div className="logo">
+              <span className="logo-icon">⛓️</span>
+              <span className="logo-text">Chain</span>
+            </div>
+            <div className="header-actions">
+              <button className="btn-add" onClick={() => setShowModal(true)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                New Habit
+              </button>
+              <button className="btn-signout" onClick={onSignOut} title={`Sign out (${user.email})`}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            </div>
           </div>
-          <div className="header-actions">
-            <button className="btn-add" onClick={() => setShowModal(true)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              New Habit
-            </button>
-            <button className="btn-signout" onClick={onSignOut} title={`Sign out (${user.email})`}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-            </button>
-          </div>
-        </div>
 
-        <div className="today-card">
-          <div className="today-info">
-            <span className="today-label">{formatDate(todayStr)}</span>
-            <span className="today-count">
-              {loading
-                ? 'Loading…'
-                : allDone
-                  ? '🎉 All done!'
-                  : `${todayDone} / ${habits.length} completed`}
-            </span>
-          </div>
-          <div className="progress-bar">
-            <div
-              className={`progress-fill${allDone ? ' complete' : ''}`}
-              style={{ width: `${progress}%` }}
-            />
+          <div className="today-card">
+            <div className="today-info">
+              <span className="today-label">{formatDate(todayStr)}</span>
+              <span className="today-count">
+                {loading
+                  ? 'Loading…'
+                  : allDone
+                    ? '🎉 All done!'
+                    : `${todayDone} / ${habits.length} completed`}
+              </span>
+            </div>
+            <div className="progress-bar">
+              <div
+                className={`progress-fill${allDone ? ' complete' : ''}`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
         </div>
       </header>
 
+      <div className="app">
       <main className="app-main">
         <section className="habits-section">
           <div className="section-header">
@@ -138,6 +142,10 @@ function AppContent({ user, onSignOut }: AppContentProps) {
         </section>
 
         {!loading && habits.length > 0 && (
+          <StreakBoard habits={habits} completions={completions} />
+        )}
+
+        {!loading && habits.length > 0 && (
           <Heatmap completions={completions} habits={habits} />
         )}
       </main>
@@ -148,6 +156,7 @@ function AppContent({ user, onSignOut }: AppContentProps) {
           onClose={() => setShowModal(false)}
         />
       )}
-    </div>
+      </div>
+    </>
   )
 }
