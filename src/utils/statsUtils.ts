@@ -125,6 +125,27 @@ export function getHeatmapDays(
   return days
 }
 
+/** All days from Jan 1 to Dec 31 of the given year. Future days have done=0. */
+export function getCalendarYearDays(
+  completions: CompletionMap,
+  habits: Habit[],
+  year: number,
+): HeatmapDay[] {
+  const days: HeatmapDay[] = []
+  const todayStr = today()
+  const start = `${year}-01-01`
+  const end = `${year}-12-31`
+  let cursor = start
+
+  while (cursor <= end) {
+    const done = cursor <= todayStr ? (completions[cursor] ?? []).length : 0
+    days.push({ date: cursor, done, total: habits.length })
+    cursor = addDays(cursor, 1)
+  }
+
+  return days
+}
+
 export function getLongestStreak(habitId: string, completions: CompletionMap): number {
   const allDates = Object.keys(completions).sort()
   if (allDates.length === 0) return 0

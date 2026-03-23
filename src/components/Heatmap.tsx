@@ -1,6 +1,6 @@
 import type { Habit, CompletionMap } from '../types'
 import type { HeatmapDay } from '../utils/statsUtils'
-import { getHeatmapDays } from '../utils/statsUtils'
+import { getCalendarYearDays } from '../utils/statsUtils'
 import { getDayOfWeek, formatDate } from '../utils/dateUtils'
 
 // Monday-first
@@ -22,7 +22,8 @@ interface Props {
 }
 
 export default function Heatmap({ completions, habits }: Props) {
-  const days = getHeatmapDays(completions, habits, 365)
+  const year = new Date().getFullYear()
+  const days = getCalendarYearDays(completions, habits, year)
 
   // Convert Sunday-based (0=Sun) to Monday-based (0=Mon)
   const firstDOW = (getDayOfWeek(days[0].date) + 6) % 7
