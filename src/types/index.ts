@@ -4,6 +4,7 @@ export interface Habit {
   name: string
   emoji: string
   color: string
+  frequency: number  // times per week, 1–7; 7 = daily
   created_at: string
 }
 

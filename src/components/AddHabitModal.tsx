@@ -7,8 +7,17 @@ const COLORS = [
 
 const EMOJIS = ['⚡', '🏃', '📚', '💧', '🧘', '🎯', '💪', '🥗', '😴', '✍️', '🎨', '🎵']
 
+const FREQ_OPTIONS = [
+  { value: 7, label: 'Daily' },
+  { value: 5, label: '5×/wk' },
+  { value: 4, label: '4×/wk' },
+  { value: 3, label: '3×/wk' },
+  { value: 2, label: '2×/wk' },
+  { value: 1, label: '1×/wk' },
+]
+
 interface Props {
-  onAdd: (name: string, emoji: string, color: string) => void
+  onAdd: (name: string, emoji: string, color: string, frequency: number) => void
   onClose: () => void
 }
 
@@ -16,11 +25,12 @@ export default function AddHabitModal({ onAdd, onClose }: Props) {
   const [name, setName] = useState('')
   const [emoji, setEmoji] = useState('⚡')
   const [color, setColor] = useState(COLORS[0])
+  const [frequency, setFrequency] = useState(7)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
-    onAdd(name.trim(), emoji, color)
+    onAdd(name.trim(), emoji, color, frequency)
     onClose()
   }
 
@@ -43,6 +53,22 @@ export default function AddHabitModal({ onAdd, onClose }: Props) {
               onChange={e => setName(e.target.value)}
               maxLength={40}
             />
+          </div>
+
+          <div className="field">
+            <label>Frequency</label>
+            <div className="freq-grid">
+              {FREQ_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`freq-btn${frequency === opt.value ? ' selected' : ''}`}
+                  onClick={() => setFrequency(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="field">

@@ -1,6 +1,52 @@
 import type { CompletionMap, Habit } from '../types'
 import { today, subtractDays, addDays } from './dateUtils'
 
+/** Returns the Monday of the ISO week containing `date`. */
+function getWeekStart(date: string): string {
+  const d = new Date(date + 'T00:00:00')
+  const dow = d.getDay() // 0 = Sun
+  const diff = dow === 0 ? -6 : 1 - dow
+  d.setDate(d.getDate() + diff)
+  return d.toISOString().slice(0, 10)
+}
+
+function countWeekCompletions(habitId: string, weekStart: string, completions: CompletionMap): number {
+  let count = 0
+  let cursor = weekStart
+  const weekEnd = addDays(weekStart, 6)
+  while (cursor <= weekEnd) {
+    if ((completions[cursor] ?? []).includes(habitId)) count++
+    cursor = addDays(cursor, 1)
+  }
+  return count
+}
+
+/** Streak in complete weeks for sub-weekly habits (frequency < 7). */
+export function getWeeklyStreak(habitId: string, frequency: number, completions: CompletionMap): number {
+  let streak = 0
+  let weekStart = getWeekStart(today())
+
+  // Include current week if already complete
+  if (countWeekCompletions(habitId, weekStart, completions) >= frequency) {
+    streak = 1
+  }
+
+  // Walk backwards through past complete weeks
+  let cursor = subtractDays(weekStart, 7)
+  while (streak < 1000) {
+    if (countWeekCompletions(habitId, cursor, completions) < frequency) break
+    streak++
+    cursor = subtractDays(cursor, 7)
+  }
+
+  return streak
+}
+
+/** How many times the habit has been completed in the current ISO week. */
+export function getThisWeekCount(habitId: string, completions: CompletionMap): number {
+  return countWeekCompletions(habitId, getWeekStart(today()), completions)
+}
+
 export function getStreak(habitId: string, completions: CompletionMap): number {
   let streak = 0
   let cursor = today()
@@ -22,6 +68,7 @@ export function getCompletionRate(
   habitId: string,
   completions: CompletionMap,
   windowDays: number,
+  frequency = 7,
 ): number {
   let completed = 0
   let cursor = subtractDays(today(), windowDays - 1)
@@ -32,7 +79,9 @@ export function getCompletionRate(
     cursor = addDays(cursor, 1)
   }
 
-  return Math.round((completed / windowDays) * 100)
+  // Expected completions over the window adjusted for frequency
+  const expected = (windowDays / 7) * frequency
+  return Math.round((completed / expected) * 100)
 }
 
 export interface Milestone {

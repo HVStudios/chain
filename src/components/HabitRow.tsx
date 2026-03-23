@@ -1,5 +1,8 @@
 import type { Habit, CompletionMap } from '../types'
-import { getStreak, getCompletionRate, getLongestStreak, getMilestone } from '../utils/statsUtils'
+import {
+  getStreak, getWeeklyStreak, getThisWeekCount,
+  getCompletionRate, getLongestStreak, getMilestone,
+} from '../utils/statsUtils'
 
 interface Props {
   habit: Habit
@@ -18,12 +21,24 @@ export default function HabitRow({
   onDelete,
   window: windowDays,
 }: Props) {
-  const streak = getStreak(habit.id, completions)
-  const rate = getCompletionRate(habit.id, completions, windowDays)
-  const longest = getLongestStreak(habit.id, completions)
+  const isDaily = habit.frequency === 7
   const done = isCompleted(habit.id)
-  const atRisk = streak > 0 && !done
+
+  const streak = isDaily
+    ? getStreak(habit.id, completions)
+    : getWeeklyStreak(habit.id, habit.frequency, completions)
+
+  const rate = getCompletionRate(habit.id, completions, windowDays, habit.frequency)
+  const longest = isDaily ? getLongestStreak(habit.id, completions) : null
   const milestone = getMilestone(streak)
+
+  const thisWeekCount = isDaily ? null : getThisWeekCount(habit.id, completions)
+  const weekComplete = !isDaily && thisWeekCount !== null && thisWeekCount >= habit.frequency
+
+  // At risk: had a streak going but today/this week not yet done
+  const atRisk = isDaily
+    ? streak > 0 && !done
+    : streak > 0 && !weekComplete
 
   return (
     <div
@@ -45,24 +60,52 @@ export default function HabitRow({
       <span className="habit-emoji">{habit.emoji}</span>
 
       <div className="habit-info">
-        <span className="habit-name">{habit.name}</span>
-        <div className="habit-meta">
-          <span className={`meta-stat streak-stat${atRisk ? ' at-risk' : ''}`}>
-            🔥 {streak}d
-            {atRisk && <span className="streak-risk-dot" title="Streak at risk — complete today!" />}
-          </span>
-          {milestone && (
-            <span
-              className="streak-milestone"
-              style={{ '--milestone-color': milestone.color } as React.CSSProperties}
-            >
-              {milestone.label}
-            </span>
+        <div className="habit-name-row">
+          <span className="habit-name">{habit.name}</span>
+          {!isDaily && (
+            <span className="freq-badge">{habit.frequency}×/wk</span>
           )}
-          {longest > streak && (
+        </div>
+        <div className="habit-meta">
+          {isDaily ? (
             <>
+              <span className={`meta-stat streak-stat${atRisk ? ' at-risk' : ''}`}>
+                🔥 {streak}d
+                {atRisk && <span className="streak-risk-dot" title="Streak at risk — complete today!" />}
+              </span>
+              {milestone && (
+                <span
+                  className="streak-milestone"
+                  style={{ '--milestone-color': milestone.color } as React.CSSProperties}
+                >
+                  {milestone.label}
+                </span>
+              )}
+              {longest !== null && longest > streak && (
+                <>
+                  <span className="meta-divider" />
+                  <span className="meta-stat pb-stat">PB {longest}d</span>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <span className={`meta-stat streak-stat${atRisk ? ' at-risk' : ''}`}>
+                🔥 {streak}wk
+                {atRisk && <span className="streak-risk-dot" title="Complete this week to keep your streak!" />}
+              </span>
+              {milestone && (
+                <span
+                  className="streak-milestone"
+                  style={{ '--milestone-color': milestone.color } as React.CSSProperties}
+                >
+                  {milestone.label}
+                </span>
+              )}
               <span className="meta-divider" />
-              <span className="meta-stat pb-stat">PB {longest}d</span>
+              <span className={`meta-stat week-count${weekComplete ? ' week-done' : ''}`}>
+                {thisWeekCount}/{habit.frequency} this wk
+              </span>
             </>
           )}
           <span className="meta-divider" />
@@ -71,7 +114,7 @@ export default function HabitRow({
       </div>
 
       <div className="habit-rate-bar" title={`${rate}%`}>
-        <div className="rate-fill" style={{ width: `${rate}%` }} />
+        <div className="rate-fill" style={{ width: `${Math.min(rate, 100)}%` }} />
       </div>
 
       <button className="delete-btn" onClick={() => onDelete(habit.id)} aria-label="Delete habit">

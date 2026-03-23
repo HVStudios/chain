@@ -68,10 +68,10 @@ export function useHabits(userId: string) {
   )
 
   const addHabit = useCallback(
-    async (name: string, emoji: string, color: string) => {
+    async (name: string, emoji: string, color: string, frequency: number) => {
       const { data, error } = await supabase
         .from('habits')
-        .insert({ user_id: userId, name, emoji, color, created_at: today() })
+        .insert({ user_id: userId, name, emoji, color, frequency, created_at: today() })
         .select()
         .single()
 
