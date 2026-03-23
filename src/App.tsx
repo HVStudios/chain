@@ -5,6 +5,11 @@ import { useHabits } from './hooks/useHabits'
 import HabitRow from './components/HabitRow'
 import Heatmap from './components/Heatmap'
 import StreakBoard from './components/StreakBoard'
+import WeeklyBarChart from './components/WeeklyBarChart'
+import PersonalRecords from './components/PersonalRecords'
+import DayOfWeekMatrix from './components/DayOfWeekMatrix'
+import StreakTimeline from './components/StreakTimeline'
+import MonthlySummary from './components/MonthlySummary'
 import AddHabitModal from './components/AddHabitModal'
 import AuthPage from './components/AuthPage'
 import { formatDate, today } from './utils/dateUtils'
@@ -145,6 +150,16 @@ function AppContent({ user, onSignOut }: AppContentProps) {
           <StreakBoard habits={habits} completions={completions} />
         )}
       </main>
+
+      {!loading && habits.length > 0 && (
+        <div className="stats-panel">
+          <WeeklyBarChart habits={habits} completions={completions} />
+          <MonthlySummary habits={habits} completions={completions} />
+          <PersonalRecords habits={habits} completions={completions} />
+          <DayOfWeekMatrix habits={habits} completions={completions} />
+          <StreakTimeline habits={habits} completions={completions} />
+        </div>
+      )}
 
       {showModal && (
         <AddHabitModal

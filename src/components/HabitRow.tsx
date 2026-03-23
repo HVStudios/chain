@@ -2,7 +2,9 @@ import type { Habit, CompletionMap } from '../types'
 import {
   getStreak, getWeeklyStreak, getThisWeekCount,
   getCompletionRate, getLongestStreak, getMilestone,
+  getSparklineData, getConsistencyScore,
 } from '../utils/statsUtils'
+import Sparkline from './Sparkline'
 
 interface Props {
   habit: Habit
@@ -11,6 +13,13 @@ interface Props {
   onToggle: (habitId: string) => void
   onDelete: (habitId: string) => void
   window: number
+}
+
+function scoreColor(score: number): string {
+  if (score >= 80) return '#4ade80'
+  if (score >= 60) return '#facc15'
+  if (score >= 40) return '#fb923c'
+  return '#f43f5e'
 }
 
 export default function HabitRow({
@@ -31,14 +40,13 @@ export default function HabitRow({
   const rate = getCompletionRate(habit.id, completions, windowDays, habit.frequency)
   const longest = isDaily ? getLongestStreak(habit.id, completions) : null
   const milestone = getMilestone(streak)
+  const sparkData = getSparklineData(habit.id, completions, 14)
+  const score = getConsistencyScore(habit.id, completions, habit.frequency)
 
   const thisWeekCount = isDaily ? null : getThisWeekCount(habit.id, completions)
   const weekComplete = !isDaily && thisWeekCount !== null && thisWeekCount >= habit.frequency
 
-  // At risk: had a streak going but today/this week not yet done
-  const atRisk = isDaily
-    ? streak > 0 && !done
-    : streak > 0 && !weekComplete
+  const atRisk = isDaily ? streak > 0 && !done : streak > 0 && !weekComplete
 
   return (
     <div
@@ -62,16 +70,22 @@ export default function HabitRow({
       <div className="habit-info">
         <div className="habit-name-row">
           <span className="habit-name">{habit.name}</span>
-          {!isDaily && (
-            <span className="freq-badge">{habit.frequency}×/wk</span>
-          )}
+          {!isDaily && <span className="freq-badge">{habit.frequency}×/wk</span>}
+          <span
+            className="consistency-score"
+            style={{ color: scoreColor(score) }}
+            title={`Consistency score: ${score}/100`}
+          >
+            {score}
+          </span>
         </div>
+
         <div className="habit-meta">
           {isDaily ? (
             <>
               <span className={`meta-stat streak-stat${atRisk ? ' at-risk' : ''}`}>
                 🔥 {streak}d
-                {atRisk && <span className="streak-risk-dot" title="Streak at risk — complete today!" />}
+                {atRisk && <span className="streak-risk-dot" title="Complete today to keep your streak!" />}
               </span>
               {milestone && (
                 <span
@@ -111,6 +125,8 @@ export default function HabitRow({
           <span className="meta-divider" />
           <span className="meta-stat">{rate}% last {windowDays}d</span>
         </div>
+
+        <Sparkline data={sparkData} color={habit.color} />
       </div>
 
       <div className="habit-rate-bar" title={`${rate}%`}>
