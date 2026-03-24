@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { useAuth } from './hooks/useAuth'
+import { useTheme } from './hooks/useTheme'
 import { useHabits } from './hooks/useHabits'
 import HabitRow from './components/HabitRow'
 import Heatmap from './components/Heatmap'
@@ -16,6 +17,7 @@ import { formatDate, today } from './utils/dateUtils'
 
 export default function App() {
   const { user, loading: authLoading, signIn, signUp, signOut } = useAuth()
+  const { theme, toggle: toggleTheme } = useTheme()
 
   if (authLoading) {
     return (
@@ -26,18 +28,20 @@ export default function App() {
   }
 
   if (!user) {
-    return <AuthPage onSignIn={signIn} onSignUp={signUp} />
+    return <AuthPage onSignIn={signIn} onSignUp={signUp} onToggleTheme={toggleTheme} theme={theme} />
   }
 
-  return <AppContent user={user} onSignOut={signOut} />
+  return <AppContent user={user} onSignOut={signOut} onToggleTheme={toggleTheme} theme={theme} />
 }
 
 interface AppContentProps {
   user: User
   onSignOut: () => void
+  onToggleTheme: () => void
+  theme: 'light' | 'dark'
 }
 
-function AppContent({ user, onSignOut }: AppContentProps) {
+function AppContent({ user, onSignOut, onToggleTheme, theme }: AppContentProps) {
   const { habits, completions, loading, toggleHabit, addHabit, deleteHabit, isCompleted } =
     useHabits(user.id)
   const [showModal, setShowModal] = useState(false)
@@ -65,7 +69,22 @@ function AppContent({ user, onSignOut }: AppContentProps) {
                 </svg>
                 New Habit
               </button>
-              <button className="btn-signout" onClick={onSignOut} title={`Sign out (${user.email})`}>
+              <button className="btn-icon" onClick={onToggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+                {theme === 'dark' ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                  </svg>
+                )}
+              </button>
+              <button className="btn-icon" onClick={onSignOut} title={`Sign out (${user.email})`}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                   <polyline points="16 17 21 12 16 7" />
