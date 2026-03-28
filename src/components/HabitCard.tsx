@@ -46,7 +46,9 @@ export default function HabitCard({ habit, date, completions, isCompleted, onTog
         </svg>
       </div>
 
-      <span className="habit-card-emoji">{habit.emoji}</span>
+      <div className="habit-card-emoji-wrap">
+        <span className="habit-card-emoji">{habit.emoji}</span>
+      </div>
       <span className="habit-card-name">{habit.name}</span>
 
       <div className="habit-card-footer">
