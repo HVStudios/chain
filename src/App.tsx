@@ -63,7 +63,7 @@ function AppContent({ user, onSignOut, onToggleTheme, theme }: AppContentProps) 
   const allDone = habits.length > 0 && selectedDone >= habits.length
 
   return (
-    <>
+    <div className="app-shell">
       {/* ── Header ── */}
       <header className="app-header">
         <div className="header-inner">
@@ -210,6 +210,6 @@ function AppContent({ user, onSignOut, onToggleTheme, theme }: AppContentProps) 
       {showModal && (
         <AddHabitModal onAdd={addHabit} onClose={() => setShowModal(false)} />
       )}
-    </>
+    </div>
   )
 }
