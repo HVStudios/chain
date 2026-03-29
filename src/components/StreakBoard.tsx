@@ -1,10 +1,56 @@
 import { useMemo } from 'react'
 import type { Habit, CompletionMap } from '../types'
 import { getStreak, getLongestStreak, getMilestone } from '../utils/statsUtils'
+import { useCountUp } from '../hooks/useCountUp'
 
 interface Props {
   habits: Habit[]
   completions: CompletionMap
+}
+
+interface SbRowProps {
+  habit: Habit
+  current: number
+  longest: number
+  maxCurrent: number
+  rank: number
+  isTop: boolean
+}
+
+function SbRow({ habit, current, longest, maxCurrent, rank, isTop }: SbRowProps) {
+  const displayCurrent = useCountUp(current)
+  const milestone = getMilestone(current)
+  const barPct = maxCurrent > 0 ? (current / maxCurrent) * 100 : 0
+
+  return (
+    <div
+      className={`sb-row${isTop ? ' sb-top' : ''}`}
+      style={{ '--habit-color': habit.color } as React.CSSProperties}
+    >
+      <span className="sb-rank">{rank}</span>
+      <span className="sb-emoji">{habit.emoji}</span>
+      <div className="sb-info">
+        <div className="sb-name-row">
+          <span className="sb-name">{habit.name}</span>
+          {milestone && (
+            <span
+              className="sb-milestone"
+              style={{ '--milestone-color': milestone.color } as React.CSSProperties}
+            >
+              {milestone.label}
+            </span>
+          )}
+        </div>
+        <div className="sb-bar-track">
+          <div className="sb-bar-fill sb-bar-animated" style={{ '--bar-pct': `${barPct}%` } as React.CSSProperties} />
+        </div>
+      </div>
+      <div className="sb-nums">
+        <span className="sb-current">{displayCurrent}d</span>
+        {longest > current && <span className="sb-pb">PB {longest}d</span>}
+      </div>
+    </div>
+  )
 }
 
 export default function StreakBoard({ habits, completions }: Props) {
@@ -33,42 +79,17 @@ export default function StreakBoard({ habits, completions }: Props) {
       </div>
 
       <div className="streakboard-card">
-        {rows.map(({ habit, current, longest }, i) => {
-          const milestone = getMilestone(current)
-          const barPct = maxCurrent > 0 ? (current / maxCurrent) * 100 : 0
-          const isTop = i === 0 && current > 0
-
-          return (
-            <div
-              key={habit.id}
-              className={`sb-row${isTop ? ' sb-top' : ''}`}
-              style={{ '--habit-color': habit.color } as React.CSSProperties}
-            >
-              <span className="sb-rank">{i + 1}</span>
-              <span className="sb-emoji">{habit.emoji}</span>
-              <div className="sb-info">
-                <div className="sb-name-row">
-                  <span className="sb-name">{habit.name}</span>
-                  {milestone && (
-                    <span
-                      className="sb-milestone"
-                      style={{ '--milestone-color': milestone.color } as React.CSSProperties}
-                    >
-                      {milestone.label}
-                    </span>
-                  )}
-                </div>
-                <div className="sb-bar-track">
-                  <div className="sb-bar-fill" style={{ width: `${barPct}%` }} />
-                </div>
-              </div>
-              <div className="sb-nums">
-                <span className="sb-current">{current}d</span>
-                {longest > current && <span className="sb-pb">PB {longest}d</span>}
-              </div>
-            </div>
-          )
-        })}
+        {rows.map(({ habit, current, longest }, i) => (
+          <SbRow
+            key={habit.id}
+            habit={habit}
+            current={current}
+            longest={longest}
+            maxCurrent={maxCurrent}
+            rank={i + 1}
+            isTop={i === 0 && current > 0}
+          />
+        ))}
 
         {allTimeLongest && allTimeLongest.longest > 0 && (
           <div className="sb-footer">

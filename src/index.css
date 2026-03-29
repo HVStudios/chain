@@ -2029,3 +2029,143 @@ body {
 .profile-row--danger .profile-row-label { color: #f87171; }
 .profile-row-arrow { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
 .profile-version { margin-top: 24px; font-size: 13px; color: var(--text-muted); }
+
+
+/* ══════════════════════════════════════
+   Animations
+══════════════════════════════════════ */
+
+/* ── Tab content entrance ── */
+
+.home-tab,
+.stats-tab,
+.activity-tab,
+.profile-tab {
+  animation: tabEnter 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes tabEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Habit card stagger ── */
+
+.habit-card {
+  animation: cardEnter 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.habit-grid .habit-card:nth-child(1)  { animation-delay: 30ms; }
+.habit-grid .habit-card:nth-child(2)  { animation-delay: 70ms; }
+.habit-grid .habit-card:nth-child(3)  { animation-delay: 110ms; }
+.habit-grid .habit-card:nth-child(4)  { animation-delay: 150ms; }
+.habit-grid .habit-card:nth-child(5)  { animation-delay: 190ms; }
+.habit-grid .habit-card:nth-child(6)  { animation-delay: 225ms; }
+.habit-grid .habit-card:nth-child(7)  { animation-delay: 260ms; }
+.habit-grid .habit-card:nth-child(8)  { animation-delay: 290ms; }
+.habit-grid .habit-card:nth-child(n+9){ animation-delay: 310ms; }
+
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ── Tap ripple ── */
+
+.habit-card-ripple {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  transform: translate(-50%, -50%) scale(0);
+  animation: rippleOut 0.55s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes rippleOut {
+  to { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
+}
+
+/* ── Streak bar animated fill ── */
+
+.sb-bar-animated {
+  width: 0 !important;
+  animation: barFill 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+}
+
+@keyframes barFill {
+  to { width: var(--bar-pct) !important; }
+}
+
+/* ── StreakBoard row entrance stagger ── */
+
+.sb-row {
+  animation: sbRowEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.streakboard-card .sb-row:nth-child(1) { animation-delay: 60ms; }
+.streakboard-card .sb-row:nth-child(2) { animation-delay: 110ms; }
+.streakboard-card .sb-row:nth-child(3) { animation-delay: 155ms; }
+.streakboard-card .sb-row:nth-child(4) { animation-delay: 195ms; }
+.streakboard-card .sb-row:nth-child(n+5){ animation-delay: 230ms; }
+
+@keyframes sbRowEnter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Stats panel card stagger ── */
+
+.stat-card {
+  animation: cardEnter 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stats-panel .stat-card:nth-child(1)  { animation-delay: 50ms; }
+.stats-panel .stat-card:nth-child(2)  { animation-delay: 100ms; }
+.stats-panel .stat-card:nth-child(3)  { animation-delay: 145ms; }
+.stats-panel .stat-card:nth-child(4)  { animation-delay: 185ms; }
+.stats-panel .stat-card:nth-child(n+5){ animation-delay: 220ms; }
+
+/* ── Day selector entrance ── */
+
+.day-btn {
+  animation: dayBtnEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.day-selector-wrap .day-btn:nth-child(n+20) { animation-delay: 0ms; }
+.day-selector-wrap .day-btn:nth-last-child(5){ animation-delay: 20ms; }
+.day-selector-wrap .day-btn:nth-last-child(4){ animation-delay: 40ms; }
+.day-selector-wrap .day-btn:nth-last-child(3){ animation-delay: 60ms; }
+.day-selector-wrap .day-btn:nth-last-child(2){ animation-delay: 80ms; }
+.day-selector-wrap .day-btn:nth-last-child(1){ animation-delay: 100ms; }
+
+@keyframes dayBtnEnter {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Day button press feedback ── */
+
+.day-btn:active { transform: scale(0.93); }
+
+/* ── Nav item press feedback ── */
+
+.nav-item:active { transform: scale(0.88); }
+
+/* ── Profile row press ── */
+
+.profile-row:active { transform: scale(0.98); }
+
+/* ── Empty state float ── */
+
+.empty-icon {
+  display: inline-block;
+  animation: floatBob 3s ease-in-out infinite;
+}
+
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+

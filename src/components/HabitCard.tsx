@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import type { Habit, CompletionMap } from '../types'
 import { getStreak, getCompletionRate } from '../utils/statsUtils'
 import { today } from '../utils/dateUtils'
@@ -11,22 +12,44 @@ interface Props {
   onDelete: (habitId: string) => void
 }
 
+interface Ripple { id: number; x: number; y: number }
+
 export default function HabitCard({ habit, date, completions, isCompleted, onToggle, onDelete }: Props) {
   const done = isCompleted(habit.id, date)
   const isToday = date === today()
   const streak = getStreak(habit.id, completions)
   const rate = getCompletionRate(habit.id, completions, 7, habit.frequency)
+  const [ripples, setRipples] = useState<Ripple[]>([])
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isToday) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const ripple: Ripple = { id: Date.now(), x: e.clientX - rect.left, y: e.clientY - rect.top }
+    setRipples(prev => [...prev, ripple])
+    setTimeout(() => setRipples(prev => prev.filter(r => r.id !== ripple.id)), 600)
+    onToggle(habit.id, date)
+  }, [isToday, habit.id, date, onToggle])
 
   return (
     <div
       className={`habit-card${done ? ' done' : ''}`}
       style={{ '--habit-color': habit.color } as React.CSSProperties}
-      onClick={() => isToday && onToggle(habit.id, date)}
+      onClick={handleClick}
       role={isToday ? 'button' : undefined}
       tabIndex={isToday ? 0 : undefined}
       onKeyDown={e => isToday && e.key === 'Enter' && onToggle(habit.id, date)}
     >
-      {/* Delete button — visible on hover/focus */}
+      {/* Tap ripples */}
+      {ripples.map(r => (
+        <span
+          key={r.id}
+          className="habit-card-ripple"
+          style={{ left: r.x, top: r.y }}
+          aria-hidden
+        />
+      ))}
+
+      {/* Delete button — visible on hover */}
       <button
         className="habit-card-delete"
         onClick={e => { e.stopPropagation(); onDelete(habit.id) }}

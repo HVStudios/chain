@@ -136,7 +136,7 @@ function AppContent({ user, onSignOut, onToggleTheme, theme }: AppContentProps) 
                 </button>
               </div>
             ) : (
-              <div className="habit-grid">
+              <div className="habit-grid" key={selectedDate}>
                 {habits.map(habit => (
                   <HabitCard
                     key={habit.id}
